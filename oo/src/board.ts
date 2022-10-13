@@ -1,3 +1,5 @@
+import Utils from "./utils";
+
 export type Generator<T> = { next: () => T };
 
 export type Position = {
@@ -21,25 +23,29 @@ export class Board<T> {
   #generator: Generator<T>;
   #height: number;
   #width: number;
+  #board: T[][];
 
   constructor(generator: Generator<T>, width: number, height: number) {
     this.#generator = generator;
     this.#height = height;
     this.#width = width;
+    this.#board = [];
+
+    this.initializeBoard();
   }
 
-  public get width() {
+  get width() {
     return this.#width;
   }
 
-  public get height() {
+  get height() {
     return this.#height;
   }
 
   addListener(listener: BoardListener<T>) {}
 
   piece(p: Position): T | undefined {
-    return undefined;
+    return this.#board?.[p.row]?.[p.col];
   }
 
   canMove(first: Position, second: Position): boolean {
@@ -47,4 +53,12 @@ export class Board<T> {
   }
 
   move(first: Position, second: Position) {}
+
+  private initializeBoard() {
+    this.#board = Utils.createDimensionalArray(this.#width, this.#height, () =>
+      this.#generator.next()
+    );
+
+    Utils.printDimensionalArray(this.#board);
+  }
 }

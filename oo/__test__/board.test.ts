@@ -52,7 +52,6 @@ describe("Board", () => {
   describe("Initial board", () => {
     const generator = new CyclicGenerator("ABC");
     const board = new Board(generator, 2, 3);
-
     it("has the given width", () => {
       expect(board.width).toEqual(2);
     });

@@ -18,14 +18,22 @@ export type BoardEvent<T> = {
 export type BoardListener<T> = (args: BoardEvent<T>) => void;
 
 export class Board<T> {
-  generator: Generator<T>;
-  height: number;
-  width: number;
+  #generator: Generator<T>;
+  #height: number;
+  #width: number;
 
-  constructor(generator: Generator<T>, height: number, width: number) {
-    this.generator = generator;
-    this.height = height;
-    this.width = width;
+  constructor(generator: Generator<T>, width: number, height: number) {
+    this.#generator = generator;
+    this.#height = height;
+    this.#width = width;
+  }
+
+  public get width() {
+    return this.#width;
+  }
+
+  public get height() {
+    return this.#height;
   }
 
   addListener(listener: BoardListener<T>) {}

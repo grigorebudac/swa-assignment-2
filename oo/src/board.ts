@@ -49,10 +49,30 @@ export class Board<T> {
   }
 
   canMove(first: Position, second: Position): boolean {
-    return true;
+    const sameRow = first.row === second.row;
+    const sameColumn = first.col === second.col;
+
+    if (
+      !this.isValidRowIndex(first.row) ||
+      !this.isValidColumnIndex(first.col) ||
+      !this.isValidRowIndex(second.row) ||
+      !this.isValidColumnIndex(second.col)
+    ) {
+      return false;
+    }
+
+    return (sameRow && !sameColumn) || (!sameRow && sameColumn);
   }
 
   move(first: Position, second: Position) {}
+
+  private isValidRowIndex(index: number) {
+    return index >= 0 && index < this.#height;
+  }
+
+  private isValidColumnIndex(index: number) {
+    return index >= 0 && index < this.#width;
+  }
 
   private initializeBoard() {
     this.#board = Utils.createDimensionalArray(this.#width, this.#height, () =>

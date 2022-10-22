@@ -64,7 +64,23 @@ export class Board<T> {
     return (sameRow && !sameColumn) || (!sameRow && sameColumn);
   }
 
-  move(first: Position, second: Position) {}
+  move(first: Position, second: Position) {
+    this.swap(first, second);
+  }
+
+  private swap(first: Position, second: Position) {
+    if (!this.canMove(first, second)) {
+      return;
+    }
+
+    const temp = this.piece(first);
+    this.setPiece(first, this.piece(second));
+    this.setPiece(second, temp);
+  }
+
+  private setPiece(pos: Position, value: T) {
+    this.#board[pos.row][pos.col] = value;
+  }
 
   private isValidRowIndex(index: number) {
     return index >= 0 && index < this.#height;
@@ -79,6 +95,10 @@ export class Board<T> {
       this.#generator.next()
     );
 
+    Utils.printDimensionalArray(this.#board);
+  }
+
+  print() {
     Utils.printDimensionalArray(this.#board);
   }
 }

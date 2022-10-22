@@ -212,7 +212,11 @@ describe("Board", () => {
       });
       it("finds single horizontal match when moving first piece to a match", () => {
         generator.prepare("C", "D", "A");
+
         board.move({ row: 2, col: 1 }, { row: 0, col: 1 });
+
+        board.print();
+
         expect(events.slice(0, 1)).toEqual([
           {
             kind: "Match",

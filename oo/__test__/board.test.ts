@@ -215,7 +215,11 @@ describe("Board", () => {
 
         board.move({ row: 2, col: 1 }, { row: 0, col: 1 });
 
-        board.print();
+        // board.print();
+
+        board.test({ row: 0, col: 1 });
+
+        console.log({ events });
 
         expect(events.slice(0, 1)).toEqual([
           {
@@ -234,6 +238,10 @@ describe("Board", () => {
       it("finds single horizontal match when moving second piece to a match", () => {
         generator.prepare("C", "D", "A");
         board.move({ row: 0, col: 1 }, { row: 2, col: 1 });
+
+        const count = board.foo();
+        console.log({ count });
+
         expect(events.slice(0, 1)).toEqual([
           {
             kind: "Match",

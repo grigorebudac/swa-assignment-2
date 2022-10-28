@@ -19,11 +19,15 @@ export type BoardEvent<T> = {
 
 export type BoardListener<T> = (args: BoardEvent<T>) => void;
 
+const dx = [-1, 1, 0, 0, -1, -1, 1, 1];
+const dy = [0, 0, -1, 1, -1, 1, -1, 1];
+
 export class Board<T> {
   #generator: Generator<T>;
   #height: number;
   #width: number;
   #board: T[][];
+  #listener: BoardListener<T>;
 
   constructor(generator: Generator<T>, width: number, height: number) {
     this.#generator = generator;
@@ -42,7 +46,27 @@ export class Board<T> {
     return this.#height;
   }
 
-  addListener(listener: BoardListener<T>) {}
+  addListener(listener: BoardListener<T>) {
+    this.#listener = listener;
+  }
+
+  private emitEvent(event: BoardEvent<T>) {
+    if (this.#listener == null) {
+      return;
+    }
+
+    this.#listener(event);
+  }
+
+  private createMatchEvent(matched: T, positions: Position[]) {
+    return {
+      kind: "Match",
+      match: {
+        matched,
+        positions,
+      },
+    };
+  }
 
   piece(p: Position): T | undefined {
     return this.#board?.[p.row]?.[p.col];
@@ -66,6 +90,91 @@ export class Board<T> {
 
   move(first: Position, second: Position) {
     this.swap(first, second);
+  }
+
+  test(first: Position) {
+    const matched = this.piece(first);
+    const firstPositions = this.search(first);
+
+    this.emitEvent(this.createMatchEvent(matched, firstPositions));
+  }
+
+  foo() {
+    let mat = this.#board;
+    var m = this.#height,
+      n = this.#width;
+    let positions: Position[] = [];
+    if (mat == null || m == 0 || n == 0) return 0;
+    var count = 0;
+    var visited = []; //as memo
+    for (let i = 0; i < m; i++) {
+      visited[i] = new Array(n);
+    }
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n; j++) {
+        if (mat[i][j] == "A") {
+          count++;
+          positions.push({
+            row: i,
+            col: j,
+          });
+          this.dfs(mat, i, j, visited);
+        }
+      }
+    }
+
+    console.log({ positions });
+    return count;
+  }
+
+  dfs(mat, i, j, visited) {
+    const value = "A";
+    const placeholder = "VISITED";
+
+    var m = this.#height,
+      n = this.#width;
+
+    if (i < 0 || j < 0 || i > m - 1 || j > n - 1 || visited[i][j]) return;
+    if (mat[i][j] != "A") return;
+    mat[i][j] = "NOT A";
+    visited[i][j] = true;
+    this.dfs(mat, i - 1, j, visited); //left
+    this.dfs(mat, i + 1, j, visited); //right
+    this.dfs(mat, i, j - 1, visited); //upper
+    this.dfs(mat, i, j + 1, visited); //lower
+  }
+
+  search(pos: Position, matches: Position[] = []) {
+    const value = this.piece(pos);
+
+    const leftPosition: Position = {
+      row: pos.row,
+      col: pos.col - 1,
+    };
+
+    const left = this.piece(leftPosition);
+
+    console.log({ left });
+
+    if (left === value) {
+      matches.push(leftPosition);
+    }
+
+    matches.push(pos);
+
+    const rightPosition: Position = {
+      row: pos.row,
+      col: pos.col + 1,
+    };
+
+    const right = this.piece(rightPosition);
+
+    console.log({ right });
+    if (right === value) {
+      matches.push(rightPosition);
+    }
+
+    return matches;
   }
 
   private swap(first: Position, second: Position) {

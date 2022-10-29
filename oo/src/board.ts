@@ -58,13 +58,10 @@ export class Board<T> {
     this.#listener(event);
   }
 
-  private createMatchEvent(matched: T, positions: Position[]) {
+  private createMatchEvent(match: Match<T>): BoardEvent<T> {
     return {
       kind: "Match",
-      match: {
-        matched,
-        positions,
-      },
+      match,
     };
   }
 
@@ -90,88 +87,49 @@ export class Board<T> {
 
   move(first: Position, second: Position) {
     this.swap(first, second);
-  }
 
-  test(first: Position) {
-    const matched = this.piece(first);
-    const firstPositions = this.search(first);
+    this.print();
 
-    this.emitEvent(this.createMatchEvent(matched, firstPositions));
-  }
+    const horizontalMatches = this.getMatchesHorizontally();
 
-  foo() {
-    let mat = this.#board;
-    var m = this.#height,
-      n = this.#width;
-    let positions: Position[] = [];
-    if (mat == null || m == 0 || n == 0) return 0;
-    var count = 0;
-    var visited = []; //as memo
-    for (let i = 0; i < m; i++) {
-      visited[i] = new Array(n);
+    for (const match of horizontalMatches) {
+      const matchEvent = this.createMatchEvent(match);
+      console.log({ positions: matchEvent.match.positions });
+      this.emitEvent(matchEvent);
     }
-    for (let i = 0; i < m; i++) {
-      for (let j = 0; j < n; j++) {
-        if (mat[i][j] == "A") {
-          count++;
-          positions.push({
-            row: i,
-            col: j,
+  }
+
+  private getMatchesHorizontally() {
+    let matches: Match<T>[] = [];
+    let matchesCount = 1;
+
+    for (let y = 0; y < this.#height; y++) {
+      let piece = this.#board[y][0];
+
+      matchesCount = 1;
+
+      // from 1 because the first position is stored in piece
+      for (let x = 1; x < this.#width; x++) {
+        if (this.#board[y][x] == piece) {
+          matchesCount = matchesCount + 1;
+        } else {
+          piece = this.#board[y][x];
+          matchesCount = 1;
+        }
+
+        if (matchesCount >= 3) {
+          let positions: Position[] = [];
+
+          for (let x2 = x - matchesCount + 1; x2 <= x; x2++) {
+            positions.push({ col: x2, row: y });
+          }
+
+          matches.push({
+            matched: piece,
+            positions,
           });
-          this.dfs(mat, i, j, visited);
         }
       }
-    }
-
-    console.log({ positions });
-    return count;
-  }
-
-  dfs(mat, i, j, visited) {
-    const value = "A";
-    const placeholder = "VISITED";
-
-    var m = this.#height,
-      n = this.#width;
-
-    if (i < 0 || j < 0 || i > m - 1 || j > n - 1 || visited[i][j]) return;
-    if (mat[i][j] != "A") return;
-    mat[i][j] = "NOT A";
-    visited[i][j] = true;
-    this.dfs(mat, i - 1, j, visited); //left
-    this.dfs(mat, i + 1, j, visited); //right
-    this.dfs(mat, i, j - 1, visited); //upper
-    this.dfs(mat, i, j + 1, visited); //lower
-  }
-
-  search(pos: Position, matches: Position[] = []) {
-    const value = this.piece(pos);
-
-    const leftPosition: Position = {
-      row: pos.row,
-      col: pos.col - 1,
-    };
-
-    const left = this.piece(leftPosition);
-
-    console.log({ left });
-
-    if (left === value) {
-      matches.push(leftPosition);
-    }
-
-    matches.push(pos);
-
-    const rightPosition: Position = {
-      row: pos.row,
-      col: pos.col + 1,
-    };
-
-    const right = this.piece(rightPosition);
-
-    console.log({ right });
-    if (right === value) {
-      matches.push(rightPosition);
     }
 
     return matches;

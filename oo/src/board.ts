@@ -91,8 +91,10 @@ export class Board<T> {
     this.print();
 
     const horizontalMatches = this.getMatchesHorizontally();
+    const verticalMatches = this.getMatchesVertically();
+    const matches = [...horizontalMatches, ...verticalMatches];
 
-    for (const match of horizontalMatches) {
+    for (const match of matches) {
       const matchEvent = this.createMatchEvent(match);
       console.log({ positions: matchEvent.match.positions });
       this.emitEvent(matchEvent);
@@ -111,7 +113,7 @@ export class Board<T> {
       // from 1 because the first position is stored in piece
       for (let x = 1; x < this.#width; x++) {
         if (this.#board[y][x] == piece) {
-          matchesCount = matchesCount + 1;
+          matchesCount++;
         } else {
           piece = this.#board[y][x];
           matchesCount = 1;
@@ -122,6 +124,43 @@ export class Board<T> {
 
           for (let x2 = x - matchesCount + 1; x2 <= x; x2++) {
             positions.push({ col: x2, row: y });
+          }
+
+          matches.push({
+            matched: piece,
+            positions,
+          });
+        }
+      }
+    }
+
+    return matches;
+  }
+
+  private getMatchesVertically() {
+    let matches: Match<T>[] = [];
+    let matchesCount = 1;
+
+    for (let x = 0; x < this.#width; x++) {
+      let piece = this.#board[0][x];
+
+      matchesCount = 1;
+
+      // from 1 because the first position is stored in piece
+      for (let y = 1; y < this.#height; y++) {
+        if (this.#board[y][x] == piece) {
+          matchesCount++;
+        } else {
+          piece = this.#board[y][x];
+          matchesCount = 1;
+        }
+        console.log({ matchesCount });
+
+        if (matchesCount >= 3) {
+          let positions: Position[] = [];
+
+          for (let y2 = y - matchesCount + 1; y2 <= y; y2++) {
+            positions.push({ col: x, row: y2 });
           }
 
           matches.push({

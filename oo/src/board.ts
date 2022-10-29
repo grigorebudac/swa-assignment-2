@@ -83,17 +83,33 @@ export class Board<T> {
   }
 
   move(first: Position, second: Position) {
-    this.swap(first, second);
-
     this.print();
 
-    const horizontalMatches = this.getMatchesHorizontally();
-    const verticalMatches = this.getMatchesVertically();
-    const matches = [...horizontalMatches, ...verticalMatches];
+    if (!this.canMove(first, second)) {
+      return;
+    }
 
-    for (const match of matches) {
+    this.swap(first, second);
+
+    for (const match of this.getMatches()) {
       const matchEvent = this.createMatchEvent(match);
       this.emitEvent(matchEvent);
+      // console.log({ positions: match.positions, match: match.matched });
+      this.deleteMatch(match);
+    }
+  }
+
+  private movePiecesDown() {}
+
+  private getMatches() {
+    const horizontalMatches = this.getMatchesHorizontally();
+    const verticalMatches = this.getMatchesVertically();
+    return [...horizontalMatches, ...verticalMatches];
+  }
+
+  private deleteMatch(match: Match<T>) {
+    for (const position of match.positions) {
+      this.setPiece(position, null);
     }
   }
 
@@ -124,7 +140,7 @@ export class Board<T> {
 
           matches.push({
             matched: piece,
-            positions,
+            positions: positions,
           });
         }
       }

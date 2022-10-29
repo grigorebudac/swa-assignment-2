@@ -311,10 +311,13 @@ describe("Board", () => {
           },
         ]);
       });
+
+      // TODO
       it("fires multiple events when both pieces make new matches", () => {
         generator.prepare("C", "D", "A");
         generator.prepare("B", "A", "B");
         board.move({ row: 3, col: 2 }, { row: 3, col: 0 });
+        console.log({ events: JSON.stringify(events) });
         expect(events.slice(0, 2)).toEqual([
           {
             kind: "Match",
@@ -340,6 +343,7 @@ describe("Board", () => {
           },
         ]);
       });
+      // TODO
       it("doesn't swap on illegal moves", () => {
         generator.prepare("C", "D", "A", "C", "D", "A", "C", "D", "A");
         board.move({ row: 1, col: 1 }, { row: 2, col: 1 });

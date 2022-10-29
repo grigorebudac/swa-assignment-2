@@ -585,6 +585,7 @@ describe("Board", () => {
         generator.prepare("A", "A", "A");
         generator.prepare("A", "A", "D");
         board.move({ row: 0, col: 1 }, { row: 2, col: 1 });
+        console.log({ events });
         expect(events).toEqual([
           {
             kind: "Match",

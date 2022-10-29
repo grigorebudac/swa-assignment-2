@@ -14,7 +14,7 @@ export type Match<T> = {
 
 export type BoardEvent<T> = {
   kind: string;
-  match: Match<T>;
+  match?: Match<T>;
 };
 
 export type BoardListener<T> = (args: BoardEvent<T>) => void;
@@ -62,6 +62,12 @@ export class Board<T> {
     };
   }
 
+  private createRefillEvent(): BoardEvent<T> {
+    return {
+      kind: "Refill",
+    };
+  }
+
   piece(p: Position): T | undefined {
     return this.#board?.[p.row]?.[p.col];
   }
@@ -90,17 +96,29 @@ export class Board<T> {
     this.swap(first, second);
     this.print();
 
+    this.checkMatchesRecursive();
+  }
+
+  private checkMatchesRecursive(hasMatches = true) {
+    if (!hasMatches) {
+      return;
+    }
+
     for (const match of this.getMatches()) {
       const matchEvent = this.createMatchEvent(match);
+      const refillEvent = this.createRefillEvent();
+
       this.emitEvent(matchEvent);
+      this.emitEvent(refillEvent);
 
       this.deleteMatch(match);
     }
 
     this.movePiecesDown();
-    this.print();
     this.replaceEmptyPieces();
-    this.print();
+
+    const newMatches = this.getMatches();
+    this.checkMatchesRecursive(newMatches.length > 0);
   }
 
   private replaceEmptyPieces() {

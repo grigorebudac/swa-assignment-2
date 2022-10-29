@@ -19,9 +19,6 @@ export type BoardEvent<T> = {
 
 export type BoardListener<T> = (args: BoardEvent<T>) => void;
 
-const dx = [-1, 1, 0, 0, -1, -1, 1, 1];
-const dy = [0, 0, -1, 1, -1, 1, -1, 1];
-
 export class Board<T> {
   #generator: Generator<T>;
   #height: number;
@@ -96,7 +93,6 @@ export class Board<T> {
 
     for (const match of matches) {
       const matchEvent = this.createMatchEvent(match);
-      console.log({ positions: matchEvent.match.positions });
       this.emitEvent(matchEvent);
     }
   }
@@ -154,7 +150,6 @@ export class Board<T> {
           piece = this.#board[y][x];
           matchesCount = 1;
         }
-        console.log({ matchesCount });
 
         if (matchesCount >= 3) {
           let positions: Position[] = [];

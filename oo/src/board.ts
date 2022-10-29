@@ -83,8 +83,6 @@ export class Board<T> {
   }
 
   move(first: Position, second: Position) {
-    this.print();
-
     if (!this.canMove(first, second)) {
       return;
     }
@@ -94,12 +92,56 @@ export class Board<T> {
     for (const match of this.getMatches()) {
       const matchEvent = this.createMatchEvent(match);
       this.emitEvent(matchEvent);
-      // console.log({ positions: match.positions, match: match.matched });
+
       this.deleteMatch(match);
+    }
+
+    this.movePiecesDown();
+    this.print();
+    this.replaceEmptyPieces();
+    this.print();
+  }
+
+  private replaceEmptyPieces() {
+    for (let y = this.#height - 1; y >= 0; y--) {
+      for (let x = 0; x < this.#width; x++) {
+        const piece = this.#board[y][x];
+
+        if (piece == null) {
+          this.#board[y][x] = this.#generator.next();
+        }
+      }
     }
   }
 
-  private movePiecesDown() {}
+  private movePiecesDown() {
+    for (let x = 0; x < this.#width; x++) {
+      let spanY = 0;
+
+      let y = this.#height - 1;
+
+      while (y >= 0) {
+        let piece = this.#board[y][x];
+
+        if (spanY > 0) {
+          if (piece != null) {
+            this.#board[spanY][x] = piece;
+            this.#board[y][x] = null;
+
+            y = spanY;
+
+            spanY = 0;
+          }
+        } else if (piece == null) {
+          if (spanY == 0) {
+            spanY = y;
+          }
+        }
+
+        y = y - 1;
+      }
+    }
+  }
 
   private getMatches() {
     const horizontalMatches = this.getMatchesHorizontally();

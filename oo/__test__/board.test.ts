@@ -406,6 +406,7 @@ describe("Board", () => {
       it("shifts tiles down before replacing", () => {
         generator.prepare("B", "C", "D");
         board.move({ row: 2, col: 0 }, { row: 3, col: 0 });
+
         require(board).toEqual(
           "B",
           "C",

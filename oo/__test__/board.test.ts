@@ -440,6 +440,7 @@ describe("Board", () => {
           "A"
         );
       });
+      // TODO
       it("only deletes a double match once", () => {
         generator = new GeneratorFake<String>(
           "D",

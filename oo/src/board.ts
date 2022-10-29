@@ -88,6 +88,7 @@ export class Board<T> {
     }
 
     this.swap(first, second);
+    this.print();
 
     for (const match of this.getMatches()) {
       const matchEvent = this.createMatchEvent(match);

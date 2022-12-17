@@ -1,5 +1,3 @@
-import Utils from "./utils";
-
 export type Generator<T> = { next: () => T };
 
 export type Position = {
@@ -269,14 +267,28 @@ export class Board<T> {
   }
 
   private initializeBoard() {
-    this.#board = Utils.createDimensionalArray(this.#width, this.#height, () =>
+    this.#board = this.createDimensionalArray(this.#width, this.#height, () =>
       this.#generator.next()
     );
 
-    Utils.printDimensionalArray(this.#board);
+    this.printDimensionalArray(this.#board);
   }
 
   print() {
-    Utils.printDimensionalArray(this.#board);
+    this.printDimensionalArray(this.#board);
+  }
+
+  private createDimensionalArray<T>(
+    width: number,
+    height: number,
+    getValue: () => T
+  ) {
+    return [...Array(height)].map(() => {
+      return [...Array(width)].map(() => getValue());
+    });
+  }
+
+  private printDimensionalArray<T>(arr: T[][]) {
+    console.table(arr);
   }
 }

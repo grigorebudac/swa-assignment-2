@@ -91,6 +91,8 @@ export class Board<T> {
       return;
     }
 
+    if (!this.isLegalMove(first, second)) return;
+
     this.swap(first, second);
     this.print();
 
@@ -290,5 +292,27 @@ export class Board<T> {
 
   private printDimensionalArray<T>(arr: T[][]) {
     console.table(arr);
+  }
+
+  /**
+   * Checks if the intended move is a legal one. A move is legal if the two
+   * tiles are in the same row or the same column and the swap result in a
+   * match.
+   *
+   * @param selectedPosition - The selected position of the tile
+   * @param dropPosition - The drop position of the tile
+   *
+   * @returns Either the move is legal or not
+   */
+  private isLegalMove(selectedPosition: Position, dropPosition): boolean {
+    this.swap(selectedPosition, dropPosition);
+
+    // Check if the swap caused matches
+    const hasMatches = !!this.getMatches().length;
+
+    // Restore positions to initial state
+    this.swap(dropPosition, selectedPosition);
+
+    return hasMatches;
   }
 }
